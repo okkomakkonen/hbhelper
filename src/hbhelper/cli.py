@@ -1,8 +1,9 @@
 from datetime import datetime
+import os
 
 import click
 
-from .converters import s_pankki_to_dataframe, splitwise_to_dataframe
+from .converters import s_pankki_to_dataframe, splitwise_to_dataframe, is_s_pankki_format, is_splitwise_format
 
 
 @click.group()
@@ -21,25 +22,41 @@ def cli():
 def convert_command(filename: str):
     """Convert file to HomeBank CSV format"""
 
-    # TODO: figure out what format(s) the file is in (what to do if there are multiple options)
-    format = ...
-    # TODO: convert using that backend
-    df = ...
+    possible_formats: list[str] = []
+
+    if is_s_pankki_format(filename):
+        possible_formats.append("S-Pankki")
+    
+    if is_splitwise_format(filename):
+        possible_formats.append("Splitwise")
+
+    if len(possible_formats) != 1:
+        click.echo("Could not figure out file format")
+        return 1
+
+    format = possible_formats[0]
+
+    if format == "S-Pankki":
+        df = s_pankki_to_dataframe(filename)
+    elif format == "Splitwise":
+        df = splitwise_to_dataframe(filename)
+    else:
+        return 1
 
     today = datetime.today()
     today_str = today.strftime("%Y-%m-%d")
 
     df["tags"] += f" hbhelper-{today_str}"
 
-    # TODO: find directory of original file and write to the same folder
+    dirname = os.path.dirname(os.path.realpath(filename))
 
-    out_filename = ...
+    out_filename = os.path.join(dirname, f"hbhelper-{today_str}-{filename}")
 
-    # TODO: write to file (what to do if file already exists)
+    df.to_csv(out_filename, sep=";", index=False)
 
     click.echo(f"Converted {filename} using {format} and wrote to file {out_filename}")
 
-    return
+    return 0
 
 
 @cli.command("s-pankki")

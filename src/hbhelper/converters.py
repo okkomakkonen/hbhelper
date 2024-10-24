@@ -4,6 +4,34 @@ import pandas as pd
 # date, payment, number, payee, memo, amount, category, tags
 
 
+def is_s_pankki_format(filename: str) -> bool:
+    # Read file to pd.DataFrame
+    # S-Pankki gives csv file with delimiter=";", decimal="," and columns:
+    # 'Kirjauspäivä', 'Maksupäivä', 'Summa', 'Tapahtumalaji', 'Maksaja', 'Saajan nimi',
+    # 'Saajan tilinumero', 'Saajan BIC-tunnus', 'Viitenumero', 'Viesti', 'Arkistointitunnus'
+    df = pd.read_csv(filename, delimiter=";", decimal=",")
+
+    # Verify that the file is in the correct format
+    EXPECTED_COLUMNS = [
+        "Kirjauspäivä",
+        "Maksupäivä",
+        "Summa",
+        "Tapahtumalaji",
+        "Maksaja",
+        "Saajan nimi",
+        "Saajan tilinumero",
+        "Saajan BIC-tunnus",
+        "Viitenumero",
+        "Viesti",
+        "Arkistointitunnus",
+    ]
+    columns = list(df.columns)
+    if len(columns) != 11 or EXPECTED_COLUMNS != columns:
+        return False
+
+    return True
+
+
 def s_pankki_to_dataframe(filename: str) -> pd.DataFrame:
     # Read file to pd.DataFrame
     # S-Pankki gives csv file with delimiter=";", decimal="," and columns:
@@ -59,6 +87,22 @@ def s_pankki_to_dataframe(filename: str) -> pd.DataFrame:
     df["date"] = pd.to_datetime(df["date"], format="%d.%m.%Y")
 
     return df
+
+def is_splitwise_format(filename: str) -> pd.DataFrame:
+    # Read file to pd.DataFrame
+    # Splitwise gives csv file with delimiter=",", decimal=".",
+    # first two rows and the last row containing garbage, and columns:
+    # 'Date', 'Description', 'Category', 'Cost', 'Currency', your_name, other_name
+    df = pd.read_csv(filename, delimiter=",", decimal=".", skiprows=2)
+    df = df[:-1]
+
+    # Verify that the file is in the correct format
+    columns = list(df.columns)
+    EXPECTED_COLUMNS = ["Date", "Description", "Category", "Cost", "Currency"]
+    if len(columns) != 7 or EXPECTED_COLUMNS != columns[:5]:
+        return False
+    
+    return True
 
 
 def splitwise_to_dataframe(filename: str) -> pd.DataFrame:
