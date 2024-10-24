@@ -1,5 +1,5 @@
 [project]
-name = "hbimport"
+name = "hbhelper"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -13,4 +13,4 @@ dependencies = [
 package = true
 
 [project.scripts]
-hbimport = "hbimport.cli:cli"
+hbhelper = "hbhelper.cli:cli"

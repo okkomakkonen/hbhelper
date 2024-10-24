@@ -1,6 +1,6 @@
 import pandas as pd
 
-# Homebank expected format
+# HomeBank expected format
 # date, payment, number, payee, memo, amount, category, tags
 
 
@@ -45,9 +45,8 @@ def s_pankki_to_dataframe(filename: str) -> pd.DataFrame:
         inplace=True,
     )
 
-    # Add default tag
-    df["tags"] = "homebank-import-s-pankki"
-
+    # Add new columns
+    df["tags"] = ""
     df["number"] = ""
     df["category"] = ""
 
@@ -85,9 +84,8 @@ def splitwise_to_dataframe(filename: str) -> pd.DataFrame:
         inplace=True,
     )
 
-    # Add default tag
-    df["tags"] = "homebank-import-splitwise"
-
+    # Add new columns
+    df["tags"] = ""
     df["number"] = ""
     df["category"] = ""
     df["payment"] = ""
