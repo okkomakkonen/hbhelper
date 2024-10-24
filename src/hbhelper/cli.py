@@ -46,7 +46,7 @@ def convert_command(filename: str):
     today = datetime.today()
     today_str = today.strftime("%Y-%m-%d")
 
-    df["tags"] += f" hbhelper-{today_str}"
+    df["tags"] += f"hbhelper-{today_str} "
 
     dirname = os.path.dirname(os.path.realpath(filename))
 
