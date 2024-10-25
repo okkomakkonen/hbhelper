@@ -1,6 +1,6 @@
 # hbhelper
 
-This can be used to import CSV files to Homebank. Install locally by running
+This CLI tool can be used to import CSV files to [HomeBank](https://www.gethomebank.org/en/). Install locally by running
 
 ```bash
 uv tool install .
