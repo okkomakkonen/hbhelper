@@ -1,9 +1,9 @@
-from datetime import datetime
 import os
+from datetime import datetime
 
 import click
 
-from .converters import converter_types, Converter
+from .converters import converters
 
 
 @click.group()
@@ -22,35 +22,41 @@ def cli():
 def convert_command(filename: str):
     """Convert file to HomeBank CSV format"""
 
-    possible_converters: list[Converter] = []
+    # Parse file with first converter that accepts it
+    for format, converter in converters.items():
+        # Try to parse file using the converter
+        df = converter(filename)
 
-    for converter_type in converter_types:
-        converter = converter_type(filename)
-        if converter.parse():
-            possible_converters.append(converter)
+        if df is not None:
+            break
+    else:
+        click.echo(f"Could not find a valid converter for {filename}")
+        return
 
-    if len(possible_converters) != 1:
-        click.echo("Could not figure out file format")
-        return 1
-
-    converter = possible_converters[0]
-
-    df = converter.convert()
+    # Validate dataframe
+    EXPECTED_COLUMNS = [
+        "date",
+        "payment",
+        "number",
+        "payee",
+        "memo",
+        "amount",
+        "category",
+        "tags",
+    ]
+    assert list(df.columns) == EXPECTED_COLUMNS, "columns do not match"
 
     today = datetime.today().strftime("%Y-%m-%d")
-
     df.loc[:, "tags"] += f"hbhelper-{today} "
 
+    # TODO: what if file already exists? what if filename does not end in .csv
     dirname = os.path.dirname(os.path.realpath(filename))
-
-    # TODO: fix this
     out_filename = f"hbhelper-{today}-{filename}"
     out_path = os.path.join(dirname, out_filename)
 
+    # Write dataframe to file
     df.to_csv(out_path, sep=";", index=False)
 
-    click.echo(
-        f"Converted {filename} using {converter.name} and wrote to file {out_filename}"
-    )
+    click.echo(f"Converted {filename} using {format} and wrote to file {out_filename}")
 
-    return 0
+    return
