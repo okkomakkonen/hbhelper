@@ -7,8 +7,25 @@ HomeBank expects a semicolon separated CSV file with the columns
 """
 
 from collections.abc import Callable
+from typing import Final
 
 import pandas as pd
+
+
+def validate_dataframe(df: pd.DataFrame) -> bool:
+    """Validate that the given dataframe is in the correct format for HomeBank."""
+    EXPECTED_COLUMNS: Final = [
+        "date",
+        "payment",
+        "number",
+        "payee",
+        "memo",
+        "amount",
+        "category",
+        "tags",
+    ]
+
+    return list(df.columns) == EXPECTED_COLUMNS
 
 
 def s_pankki_converter(filename: str) -> pd.DataFrame | None:
@@ -20,6 +37,9 @@ def s_pankki_converter(filename: str) -> pd.DataFrame | None:
         'Saajan tilinumero', 'Saajan BIC-tunnus', 'Viitenumero', 'Viesti', 'Arkistointitunnus'
     """
 
+    if not filename.endswith(".csv"):
+        return None
+
     # Read file to pd.DataFrame
     try:
         df = pd.read_csv(filename, delimiter=";", decimal=",", quotechar="'")
@@ -27,7 +47,7 @@ def s_pankki_converter(filename: str) -> pd.DataFrame | None:
         return None
 
     # Verify that the file is in the correct format
-    EXPECTED_COLUMNS = [
+    EXPECTED_COLUMNS: Final = [
         "Kirjauspäivä",
         "Maksupäivä",
         "Summa",
@@ -78,6 +98,9 @@ def splitwise_converter(filename: str) -> pd.DataFrame | None:
         'Date', 'Description', 'Category', 'Cost', 'Currency', your_name, other_name
     """
 
+    if not filename.endswith(".csv"):
+        return None
+
     # Read file to pd.DataFrame
     try:
         df = pd.read_csv(filename, delimiter=",", decimal=".", skiprows=2)
@@ -87,7 +110,7 @@ def splitwise_converter(filename: str) -> pd.DataFrame | None:
 
     # Verify that the file is in the correct format
     columns = list(df.columns)
-    EXPECTED_COLUMNS = ["Date", "Description", "Category", "Cost", "Currency"]
+    EXPECTED_COLUMNS: Final = ["Date", "Description", "Category", "Cost", "Currency"]
     if len(columns) != 7 or columns[:5] != EXPECTED_COLUMNS:
         return None
 

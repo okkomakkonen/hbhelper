@@ -3,7 +3,7 @@ from datetime import datetime
 
 import click
 
-from .converters import converters
+from .converters import converters, validate_dataframe
 
 
 @click.group()
@@ -34,18 +34,9 @@ def convert_command(filename: str):
         return
 
     # Validate dataframe
-    EXPECTED_COLUMNS = [
-        "date",
-        "payment",
-        "number",
-        "payee",
-        "memo",
-        "amount",
-        "category",
-        "tags",
-    ]
-    assert list(df.columns) == EXPECTED_COLUMNS, "columns do not match"
+    assert validate_dataframe(df)
 
+    # Add a tag to each entry
     today = datetime.today().strftime("%Y-%m-%d")
     df.loc[:, "tags"] += f"hbhelper-{today} "
 
