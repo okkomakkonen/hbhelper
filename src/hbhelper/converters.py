@@ -28,6 +28,62 @@ def validate_dataframe(df: pd.DataFrame) -> bool:
     return list(df.columns) == EXPECTED_COLUMNS
 
 
+def nordea_converter(filename: str) -> pd.DataFrame | None:
+    """
+    Convert CSV file from Nordea to HomeBank format.
+
+    Nordea gives csv file with delimiter=";", decimal="," and columns:
+        'Kirjauspäivä', 'Määrä', 'Maksaja', 'Maksunsaaja', 'Nimi', 'Otsikko',
+        'Viitenumero', 'Saldo', 'Valuutta', 'Unnamed: 9'
+    """
+
+    if not filename.endswith(".csv"):
+        return None
+
+    # Read file to pd.DataFrame
+    try:
+        df = pd.read_csv(filename, delimiter=";", decimal=",")
+    except pd.errors.ParserError:
+        return None
+
+    # Verify that the file is in the correct format
+    EXPECTED_COLUMNS: Final = [
+        "Kirjauspäivä",
+        "Määrä",
+        "Maksaja",
+        "Maksunsaaja",
+        "Nimi",
+        "Otsikko",
+        "Viitenumero",
+        "Saldo",
+        "Valuutta",
+        "Unnamed: 9",
+    ]
+    columns = list(df.columns)
+    if len(columns) != 10 or columns != EXPECTED_COLUMNS:
+        return None
+
+    # Remove some rows
+    df = df.loc[df["Kirjauspäivä"] != "Varaus"]
+
+    # Add new columns
+    df["date"] = pd.to_datetime(df["Kirjauspäivä"], format="%Y/%m/%d")
+    df["payment"] = ""
+    df["number"] = ""
+    df["payee"] = df["Otsikko"]
+    df["memo"] = ""
+    df["amount"] = df["Määrä"]
+    df["category"] = ""
+    df["tags"] = ""
+
+    # Remove unnecessary columns
+    df = df[
+        ["date", "payment", "number", "payee", "memo", "amount", "category", "tags"]
+    ]
+
+    return df
+
+
 def s_pankki_converter(filename: str) -> pd.DataFrame | None:
     """
     Convert CSV file from S-Pankki to HomeBank format.
@@ -139,6 +195,7 @@ def splitwise_converter(filename: str) -> pd.DataFrame | None:
 
 # These are the converters available
 converters: dict[str, Callable[[str], pd.DataFrame | None]] = {
+    "nordea": nordea_converter,
     "s-pankki": s_pankki_converter,
     "splitwise": splitwise_converter,
 }
