@@ -41,8 +41,8 @@ def convert_command(filename: str):
     df.loc[:, "tags"] += f"hbhelper-{today} "
 
     # TODO: what if file already exists? what if filename does not end in .csv
-    dirname = os.path.dirname(os.path.realpath(filename))
-    out_filename = f"hbhelper-{today}-{filename}"
+    dirname, in_filename = os.path.split(os.path.realpath(filename))
+    out_filename = f"hbhelper-{today}-{in_filename}"
     out_path = os.path.join(dirname, out_filename)
 
     # Write dataframe to file
