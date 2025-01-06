@@ -1,6 +1,7 @@
 import click
 
 from .converters import convert
+from .sankey import create_sankey
 
 
 @click.group()
@@ -25,3 +26,16 @@ def convert_command(filename: str):
 
     return
 
+@cli.command("sankey")
+@click.argument(
+    "filename", nargs=1, type=click.Path(exists=True, readable=True, dir_okay=False)
+)
+@click.argument("year", type=int)
+def sankey_command(filename: str, year: int):
+    """Create a Sankey diagram"""
+
+    message = create_sankey(filename, year)
+
+    click.echo(message)
+
+    return
