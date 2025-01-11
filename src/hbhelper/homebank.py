@@ -108,7 +108,9 @@ class Operation:
     wording: str = ""
 
 
-def read_homebank(filename: str) -> tuple[list[Account], list[Category], list[Operation]]:
+def read_homebank(
+    filename: str,
+) -> tuple[list[Account], list[Category], list[Operation]]:
     tree = ET.parse(filename)
 
     root = tree.getroot()
