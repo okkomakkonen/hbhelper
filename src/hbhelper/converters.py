@@ -6,7 +6,7 @@ HomeBank expects a semicolon separated CSV file with the columns
     [date, payment, number, payee, memo, amount, category, tags]
 """
 
-import datetime
+from datetime import datetime
 import os
 from collections.abc import Callable
 from typing import Final
