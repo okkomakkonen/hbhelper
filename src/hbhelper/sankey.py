@@ -1,5 +1,5 @@
-from decimal import Decimal
 import datetime
+from decimal import Decimal
 
 from .homebank import Category, read_homebank
 
@@ -68,20 +68,19 @@ meta mentionsankeymatic Y
 
 
 def create_sankey(
-    filename: str,
+    homebank_file_path: str,
+    sankeymatic_file_path: str,
     begin: datetime.date,
     end: datetime.date,
     ignore: tuple[str] | None = None,
-) -> str:
+) -> None:
     """Create a Sankey diagram for the financial data for the given year"""
 
-    sankeymatic_filename = "hbhelper_sankey_source.txt"
-
-    f = open(sankeymatic_filename, "+w")
+    f = open(sankeymatic_file_path, "+w")
     f.write(PREAMBLE)
 
     # read the Homebank file into the internal format
-    accounts, categories, operations = read_homebank(filename)
+    accounts, categories, operations = read_homebank(homebank_file_path)
 
     # track the amount of transactions that are not categorized
     other = Decimal(0)
@@ -152,4 +151,4 @@ def create_sankey(
     f.write(SETTINGS)
     f.close()
 
-    return f"Wrote SankeyMATIC diagram inputs to {sankeymatic_filename}, visit https://sankeymatic.com/build/ to create diagram"
+    return
