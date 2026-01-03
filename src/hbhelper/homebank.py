@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 from datetime import date, timedelta
 from decimal import Decimal
 
@@ -9,9 +9,20 @@ def to_date(d: str) -> date:
 
     return date(1970, 1, 1) + timedelta(days=int(d) - 719163)
 
+@dataclass
+class Base:
+
+    @classmethod
+    def from_dict(cls, data: dict[str, str]):
+        # Get valid field names
+        valid_fields = {f.name for f in fields(cls)}
+        # Filter the dictionary
+        filtered_data = {k: v for k, v in data.items() if k in valid_fields}
+        return cls(**filtered_data)
+
 
 @dataclass
-class Acc:
+class Acc(Base):
     key: str
     flags: str = ""
     pos: str = ""
@@ -28,7 +39,7 @@ class Acc:
 
 
 @dataclass
-class Cat:
+class Cat(Base):
     key: str
     name: str = ""
     parent: str = ""  # category
@@ -36,14 +47,14 @@ class Cat:
 
 
 @dataclass
-class Pay:
+class Pay(Base):
     key: str
     name: str = ""
     category: str = ""  # category
 
 
 @dataclass
-class Ope:
+class Ope(Base):
     date: str = ""
     amount: str = ""
     account: str = ""  # account
@@ -123,16 +134,19 @@ def read_homebank(
     for node in root:
         match node.tag:
             case "account":
-                accs[node.attrib["key"]] = Acc(**node.attrib)
+                accs[node.attrib["key"]] = Acc.from_dict(node.attrib)
 
             case "cat":
-                cats[node.attrib["key"]] = Cat(**node.attrib)
+                cats[node.attrib["key"]] = Cat.from_dict(node.attrib)
 
             case "pay":
-                pays[node.attrib["key"]] = Pay(**node.attrib)
+                pays[node.attrib["key"]] = Pay.from_dict(node.attrib)
 
             case "ope":
-                opes.append(Ope(**node.attrib))
+                opes.append(Ope.from_dict(node.attrib))
+
+            case _:
+                continue
 
     accounts: dict[str, Account] = {}
     categories_with_parent: dict[str, tuple[Category, str]] = {}
@@ -193,7 +207,7 @@ def read_homebank(
                     account=accounts[ope.account],
                     dst_account=None,
                     payee=pays[ope.payee].name if ope.payee in pays else "",
-                    category=categories.get(cat, None),
+                    category=categories.get(cat),
                     wording=mem,
                 )
                 operations.append(operation)

@@ -72,7 +72,7 @@ def create_sankey(
     sankeymatic_file_path: str,
     begin: datetime.date,
     end: datetime.date,
-    ignore: tuple[str] | None = None,
+    ignore: tuple[str, ...] = (),
 ) -> None:
     """Create a Sankey diagram for the financial data for the given year"""
 
@@ -80,7 +80,7 @@ def create_sankey(
     f.write(PREAMBLE)
 
     # read the Homebank file into the internal format
-    accounts, categories, operations = read_homebank(homebank_file_path)
+    _, categories, operations = read_homebank(homebank_file_path)
 
     # track the amount of transactions that are not categorized
     other = Decimal(0)
@@ -88,6 +88,12 @@ def create_sankey(
     # collect the amounts from the transactions within the date range to their categories
     for operation in operations:
         if not (begin <= operation.date < end):
+            continue
+        
+        if (cat := operation.category) and cat.full_name in ignore:
+            continue
+        
+        if (cat := operation.category) and (par := cat.parent) and par.name in ignore:
             continue
 
         if operation.category is None:
@@ -113,7 +119,7 @@ def create_sankey(
     # loop through the parent categories
     for parent in categories:
         # ignore unnecessary categories
-        if ignore and parent.name in ignore:
+        if parent.name in ignore:
             continue
 
         # put the categories with positive totals on the left
@@ -131,7 +137,7 @@ def create_sankey(
             children = sorted(parent.children, key=lambda category: category.total)
 
             for child in children:
-                if ignore and child.full_name in ignore:
+                if child.full_name in ignore:
                     continue
 
                 if child.amount > 0:
