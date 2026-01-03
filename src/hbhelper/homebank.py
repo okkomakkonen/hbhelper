@@ -198,7 +198,7 @@ def read_homebank(
             )
             operations.append(operation)
         else:
-            for amt, cat, mem in zip(
+            for amt, cat_name, mem in zip(
                 ope.samt.split("||"), ope.scat.split("||"), ope.smem.split("||")
             ):
                 operation = Operation(
@@ -207,7 +207,7 @@ def read_homebank(
                     account=accounts[ope.account],
                     dst_account=None,
                     payee=pays[ope.payee].name if ope.payee in pays else "",
-                    category=categories.get(cat),
+                    category=categories.get(cat_name),
                     wording=mem,
                 )
                 operations.append(operation)
