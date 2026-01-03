@@ -80,8 +80,9 @@ def nordea_converter(filename: str) -> pd.DataFrame | None:
     except pd.errors.ParserError:
         return None
 
-    # Verify that the file is in the correct format
-    EXPECTED_COLUMNS: Final = [
+    columns = list(df.columns)
+
+    EXPECTED_COLUMNS_v1: Final = [
         "Kirjauspäivä",
         "Määrä",
         "Maksaja",
@@ -93,29 +94,64 @@ def nordea_converter(filename: str) -> pd.DataFrame | None:
         "Valuutta",
         "Unnamed: 9",
     ]
-    columns = list(df.columns)
-    if len(columns) != 10 or columns != EXPECTED_COLUMNS:
-        return None
 
-    # Remove some rows
-    df = df.loc[df["Kirjauspäivä"] != "Varaus"]
+    if columns == EXPECTED_COLUMNS_v1:
+        # Remove some rows
+        df = df.loc[df["Kirjauspäivä"] != "Varaus"]
 
-    # Add new columns
-    df["date"] = pd.to_datetime(df["Kirjauspäivä"], format="%Y/%m/%d")
-    df["payment"] = ""
-    df["number"] = ""
-    df["payee"] = df["Otsikko"]
-    df["memo"] = ""
-    df["amount"] = df["Määrä"]
-    df["category"] = ""
-    df["tags"] = ""
+        # Add new columns
+        df["date"] = pd.to_datetime(df["Kirjauspäivä"], format="%Y/%m/%d")
+        df["payment"] = ""
+        df["number"] = ""
+        df["payee"] = df["Otsikko"]
+        df["memo"] = ""
+        df["amount"] = df["Määrä"]
+        df["category"] = ""
+        df["tags"] = ""
 
-    # Remove unnecessary columns
-    df = df[
-        ["date", "payment", "number", "payee", "memo", "amount", "category", "tags"]
+        # Remove unnecessary columns
+        df = df[
+            ["date", "payment", "number", "payee", "memo", "amount", "category", "tags"]
+        ]
+
+        return df
+
+    EXPECTED_COLUMNS_v2: Final = [
+        "Kirjauspäivä",
+        "Määrä",
+        "Maksaja",
+        "Maksunsaaja",
+        "Nimi",
+        "Otsikko",
+        "Viesti",
+        "Viitenumero",
+        "Saldo",
+        "Valuutta",
+        "Unnamed: 10",
     ]
 
-    return df
+    if columns == EXPECTED_COLUMNS_v2:
+        # Remove some rows
+        df = df.loc[df["Kirjauspäivä"] != "Varaus"]
+
+        # Add new columns
+        df["date"] = pd.to_datetime(df["Kirjauspäivä"], format="%Y/%m/%d")
+        df["payment"] = ""
+        df["number"] = ""
+        df["payee"] = df["Otsikko"]
+        df["memo"] = ""
+        df["amount"] = df["Määrä"]
+        df["category"] = ""
+        df["tags"] = ""
+
+        # Remove unnecessary columns
+        df = df[
+            ["date", "payment", "number", "payee", "memo", "amount", "category", "tags"]
+        ]
+
+        return df
+
+    return None
 
 
 def s_pankki_converter(filename: str) -> pd.DataFrame | None:
