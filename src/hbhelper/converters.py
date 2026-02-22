@@ -139,6 +139,38 @@ def nordea_converter(filename: str) -> pd.DataFrame | None:
         df["payment"] = ""
         df["number"] = ""
         df["payee"] = df["Otsikko"]
+        df["memo"] = df["Viesti"]
+        df["amount"] = df["Määrä"]
+        df["category"] = ""
+        df["tags"] = ""
+
+        # Remove unnecessary columns
+        df = df[
+            ["date", "payment", "number", "payee", "memo", "amount", "category", "tags"]
+        ]
+
+        return df
+
+    EXPECTED_COLUMNS_v3: Final = [
+        "Tapahtumapäivä",
+        "Kirjauspäivä",
+        "Otsikko",
+        "Määrä",
+        "Valuutta",
+        "Tapahtumatyyppi",
+        "Alkuperäinen määrä",
+        "Alkuperäinen valuutta",
+        "Postitoimipaikka",
+        "Maa",
+        "Valuuttakurssi",
+    ]
+
+    if columns == EXPECTED_COLUMNS_v3:
+        # Add new columns
+        df["date"] = pd.to_datetime(df["Tapahtumapäivä"], format="%d.%m.%Y")
+        df["payment"] = ""
+        df["number"] = ""
+        df["payee"] = df["Otsikko"]
         df["memo"] = ""
         df["amount"] = df["Määrä"]
         df["category"] = ""
