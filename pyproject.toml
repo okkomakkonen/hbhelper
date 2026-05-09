@@ -12,5 +12,10 @@ dependencies = [
 [tool.uv]
 package = true
 
+[dependency-groups]
+dev = [
+    "pandas-stubs>=3.0.0.260204",
+]
+
 [project.scripts]
 hbhelper = "hbhelper.cli:cli"

@@ -1,7 +1,7 @@
 import datetime
 from decimal import Decimal
 
-from .homebank import Category, read_homebank
+from hbhelper.homebank import Category, read_homebank
 
 PREAMBLE = """// SankeyMATIC diagram inputs - Created by hbhelper
 // https://sankeymatic.com/build/
@@ -89,10 +89,10 @@ def create_sankey(
     for operation in operations:
         if not (begin <= operation.date < end):
             continue
-        
+
         if (cat := operation.category) and cat.full_name in ignore:
             continue
-        
+
         if (cat := operation.category) and (par := cat.parent) and par.name in ignore:
             continue
 

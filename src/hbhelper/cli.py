@@ -3,9 +3,9 @@ from datetime import datetime
 
 import click
 
-from .converters import NoValidConverterError, convert
-from .sankey import create_sankey
-from .utils import get_begin_and_end_from_dates
+from hbhelper.converters import NoValidConverterError, convert
+from hbhelper.sankey import create_sankey
+from hbhelper.utils import get_begin_and_end_from_dates
 
 
 @click.group()
@@ -33,7 +33,7 @@ def convert_command(path: str):
 
     try:
         formatter = convert(path, out_path)
-    except NoValidConverterError as e:
+    except NoValidConverterError as _:
         click.echo(f"Could not find a valid converter for {in_filename}")
         return
 

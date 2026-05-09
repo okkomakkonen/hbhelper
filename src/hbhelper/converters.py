@@ -182,7 +182,7 @@ def nordea_converter(filename: str) -> pd.DataFrame | None:
         ]
 
         return df
-    
+
     EXPECTED_COLUMNS_v4: Final = [
         "Kirjauspäivä",
         "Määrä",
@@ -305,13 +305,12 @@ def splitwise_converter(filename: str) -> pd.DataFrame | None:
     # The column your_name contains the amount for you
     # NOTE: this is wrong, the columns are in alphabetical order
     your_name = df.columns[-2]
-    other_name = df.columns[-1]
 
     # Add new columns
     df["date"] = pd.to_datetime(df["Date"])
     df["payment"] = ""
     df["number"] = ""
-    df["payee"] = other_name
+    df["payee"] = "Splitwise"
     df["memo"] = df["Description"]
     df["amount"] = df[your_name]
     df["category"] = ""

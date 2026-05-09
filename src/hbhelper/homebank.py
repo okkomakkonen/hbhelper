@@ -9,9 +9,9 @@ def to_date(d: str) -> date:
 
     return date(1970, 1, 1) + timedelta(days=int(d) - 719163)
 
+
 @dataclass
 class Base:
-
     @classmethod
     def from_dict(cls, data: dict[str, str]):
         # Get valid field names
