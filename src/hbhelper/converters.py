@@ -291,10 +291,17 @@ def splitwise_converter(filename: str) -> pd.DataFrame | None:
 
     # Read file to pd.DataFrame
     try:
-        df = pd.read_csv(filename, delimiter=",", decimal=".", skiprows=2)
+        df = pd.read_csv(filename, delimiter=",", decimal=".", skiprows=0)
         df = df[:-1]
     except pd.errors.ParserError:
         return None
+
+    if list(df.columns) == ["Note: does not include group expenses"]:
+        try:
+            df = pd.read_csv(filename, delimiter=",", decimal=".", skiprows=2)
+            df = df[:-1]
+        except pd.errors.ParserError:
+            return None
 
     # Verify that the file is in the correct format
     columns = list(df.columns)
